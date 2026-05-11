@@ -1,0 +1,29 @@
+<mujoco>
+  <option gravity="0 -9.81 0" />
+  <asset>
+    <texture type="skybox" builtin="gradient" rgb1="0.3 0.5 0.7" rgb2="0 0 0" width="512" height="512" />
+    <texture name="plane" type="2d" builtin="checker" rgb1=".2 .3 .4" rgb2=".1 0.15 0.2" width="512" height="512" mark="cross" markrgb=".8 .8 .8" />
+    <material name="plane" reflectance="0.3" texture="plane" texrepeat="1 1" texuniform="true" />
+  </asset>
+
+  <worldbody>
+    <light directional="true" diffuse=".2 .2 .2" specular="0 0 0" pos="0 1 5" dir="0 -1 -1" castshadow="false"/>
+    <light directional="false" diffuse=".8 .8 .8" specular="0.3 0.3 0.3" pos="0 -1 4" dir="0 0 -1" />
+    <light directional="true" diffuse="0 0 0" specular=".7 .7 .7" pos="0 3 3" dir="0 -3 -3" />
+
+    <body name="link_0" pos="0 0.15 0" euler="0 0 0">
+        <joint name="joint_0" type="hinge" axis="0 0 1" pos="0 -0.15 0"/>
+        <geom name="box_link_0" type="box" size=".025 .15 .025" rgba="0.8 0.8 0.8 1" density="2700"/>
+
+        <body name="link_1" pos="0 0.3 0">
+              <joint name="joint_1" type="hinge" axis="0 0 1" pos="0 -0.15 0"/>
+              <geom name="box_link_1" type="box" size=".025 .15 .025" rgba="0.8 0.8 0.8 1" density="2700"/>
+
+              <body name="link_2" pos="0 0.3 0">
+                <joint name="joint_2" type="hinge" axis="0 0 1" pos="0 -0.15 0"/>
+                <geom name="box_link_2" type="box" size=".025 .15 .025" rgba="0.8 0.8 0.8 1" density="2700"/>
+              </body>
+        </body>
+    </body>
+  </worldbody>
+</mujoco>
