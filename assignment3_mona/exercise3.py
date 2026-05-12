@@ -40,18 +40,15 @@ def forward_dynamics_aba(q, qd, tau, include_gravity=True):
     """
     N = model.nbody - 1
 
-    # ----- Setup ------------------------------------------------------------
     T_rel, T_body_to_com = compute_adjacent_transforms(q)
     S = _joint_screw_axes(T_body_to_com)
     M = _link_inertias()
 
-    # ----- Loop 1: outward — kinematics, velocity-product term, init IA, pA -
     V = compute_spatial_velocities(qd, T_rel, T_body_to_com)
     c  = [V[i].cross_motion(S[i] * qd[i])      for i in range(N)]
     IA = [M[i]                                 for i in range(N)]
     pA = [V[i].cross_force(M[i].mul(V[i]))     for i in range(N)]
 
-    # ----- Loop 2: inward — propagate articulated inertia & bias to base ----
     U = [None] * N   # Force:  U_i = IA_i · S_i
     D = [None] * N   # scalar: D_i = S_i^T · U_i
     u = [None] * N   # scalar: u_i = tau_i - S_i^T · pA_i
