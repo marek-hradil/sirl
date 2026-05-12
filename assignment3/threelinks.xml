@@ -12,18 +12,23 @@
     <light directional="true" diffuse="0 0 0" specular=".7 .7 .7" pos="0 3 3" dir="0 -3 -3" />
 
     <body name="link_0" pos="0 0.15 0" euler="0 0 0">
-        <joint name="joint_0" type="hinge" axis="0 0 1" pos="0 -0.15 0"/>
+        <joint name="joint_0" type="hinge" axis="0 0 1" pos="0 -0.15 0" damping="0.4"/>
         <geom name="box_link_0" type="box" size=".025 .15 .025" rgba="0.8 0.8 0.8 1" density="2700"/>
 
         <body name="link_1" pos="0 0.3 0">
-              <joint name="joint_1" type="hinge" axis="0 0 1" pos="0 -0.15 0"/>
+              <joint name="joint_1" type="hinge" axis="0 0 1" pos="0 -0.15 0" damping="0.4"/>
               <geom name="box_link_1" type="box" size=".025 .15 .025" rgba="0.8 0.8 0.8 1" density="2700"/>
 
               <body name="link_2" pos="0 0.3 0">
-                <joint name="joint_2" type="hinge" axis="0 0 1" pos="0 -0.15 0"/>
+                <joint name="joint_2" type="hinge" axis="0 0 1" pos="0 -0.15 0" damping="0.4"/>
                 <geom name="box_link_2" type="box" size=".025 .15 .025" rgba="0.8 0.8 0.8 1" density="2700"/>
               </body>
         </body>
     </body>
   </worldbody>
+  <actuator>
+    <motor joint="joint_0" gear="1"/>
+    <motor joint="joint_1" gear="1"/>
+    <motor joint="joint_2" gear="1"/>
+  </actuator>
 </mujoco>

@@ -1,3 +1,6 @@
 assignment1/*.zip
 assignment1/__pycache__
 assignment1/*.csv
+.DS_STORE
+**/__pycache__/
+course_note/
