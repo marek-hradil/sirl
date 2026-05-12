@@ -4,3 +4,4 @@ assignment1/*.csv
 .DS_STORE
 **/__pycache__/
 course_note/
+mujoco_env/
