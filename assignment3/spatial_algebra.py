@@ -1,12 +1,10 @@
 from typing import NamedTuple
-import sys
-sys.path.insert(0, '/Users/sarene/Downloads/SIRL/course_note/src/python')
 
-import os
-os.environ.pop('SIRL_USE_JAX', None)
+#from articulated_dynamics.math_utils import nplib
+#import articulated_dynamics.math_utils as math
 
-from articulated_dynamics.math_utils import nplib
-import articulated_dynamics.math_utils as math
+from math_utils import nplib
+import math_utils as math
 
 class Transform(NamedTuple):
     """
