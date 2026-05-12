@@ -1,7 +1,7 @@
 import numpy as np
 import mujoco
 
-from spatial_algebra import Motion, Inertia
+from spatial_algebra import Motion, Inertia, Transform
 from exercise2 import (
     model,
     data,
@@ -26,12 +26,20 @@ def _link_inertias():
 def _joint_screw_axes(T_body_to_com):
     """Each joint's screw axis, expressed in the corresponding link's COM frame.
 
-    The three-link XML defines hinge joints about the body-frame z-axis at the
-    body origin, so S in the body frame is [0,0,1, 0,0,0]. We transform it into
-    the COM frame so it matches the convention used everywhere else.
+    The joint frame has the hinge axis through its origin, so S = [axis, 0]
+    there. We transform it into the COM frame via the joint→com transform.
     """
-    S_body = Motion(ang=np.array([0.0, 0.0, 1.0]), lin=np.array([0.0, 0.0, 0.0]))
-    return [S_body.apply_transform(T_bc) for T_bc in T_body_to_com]
+    S_com = []
+    for i in range(model.njnt):
+        link_id = model.jnt_bodyid[i] - 1
+        S_joint = Motion(ang=model.jnt_axis[i].copy(), lin=np.zeros(3))
+        T_body_to_joint = Transform(
+            trans=model.jnt_pos[i].copy(),
+            rot=np.array([1.0, 0.0, 0.0, 0.0]),
+        )
+        T_joint_to_com = T_body_to_com[link_id].create_local(T_body_to_joint)
+        S_com.append(S_joint.apply_transform(T_joint_to_com))
+    return S_com
 
 
 class ABA:
@@ -124,11 +132,18 @@ def forward_dynamics_aba(q, qd, tau, include_gravity=True):
 def verify_with_mujoco(q, qd, tau, label=""):
     qdd_ours = forward_dynamics_aba(q, qd, tau, include_gravity=True)
 
-    data.qpos[:] = q
-    data.qvel[:] = qd
-    data.qfrc_applied[:] = tau
-    mujoco.mj_forward(model, data)
-    qdd_mjc = data.qacc.copy()
+    # ABA models pure rigid-body dynamics. The XML adds joint damping
+    # (qfrc_passive = -damping*qd); zero it out so MuJoCo's qacc is comparable.
+    saved_damping = model.dof_damping.copy()
+    model.dof_damping[:] = 0.0
+    try:
+        data.qpos[:] = q
+        data.qvel[:] = qd
+        data.qfrc_applied[:] = tau
+        mujoco.mj_forward(model, data)
+        qdd_mjc = data.qacc.copy()
+    finally:
+        model.dof_damping[:] = saved_damping
 
     print(f"\n--- {label} ---")
     print(f"  qdd (ABA)    : {np.round(qdd_ours, 6)}")

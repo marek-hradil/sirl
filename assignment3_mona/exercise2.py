@@ -62,18 +62,43 @@ def print_transforms(T_rel):
 
 def compute_spatial_velocities(qdot, T_rel, T_body_to_com):
     """
-    Recursively compute the spatial velocity of each link, referenced at
-    and expressed in that link's COM frame:
-
-        V_i = T_{i, i-1} V_{i-1} + qdot_i * S_i
+    Recursively compute the spatial velocity of each link, expressed and
+    referenced at that link's COM frame.
     """
 
-    S_body = Motion(ang=np.array([0., 0., 1.]),
-                    lin=np.array([0., 0., 0.]))
+    S_com = []
 
-    S_com = [S_body.apply_transform(T_bc) for T_bc in T_body_to_com]
+    for i in range(model.njnt):
+        body_id = model.jnt_bodyid[i]
 
-    V = [Motion()]  # base (world) velocity = 0
+        # In this model, MuJoCo body 0 is the world.
+        # T_body_to_com[0] corresponds to body_id 1, etc.
+        link_id = body_id - 1
+
+        # Joint screw in the joint frame.
+        S_joint = Motion(
+            ang=model.jnt_axis[i].copy(),
+            lin=np.zeros(3)
+        )
+
+        # Pose of joint frame relative to body frame
+        T_body_to_joint = Transform(
+            trans=model.jnt_pos[i].copy(),
+            rot=np.array([1., 0., 0., 0.])
+        )
+
+        # Pose of COM frame relative to body frame
+        T_body_to_com_i = T_body_to_com[link_id]
+
+        # Pose of COM frame relative to joint frame
+        T_joint_to_com = T_body_to_com_i.create_local(T_body_to_joint)
+
+        # Transform joint screw into the COM frame
+        S_com_i = S_joint.apply_transform(T_joint_to_com)
+        S_com.append(S_com_i)
+
+    V = [Motion()]  # base/world velocity = zero
+
     for i, T in enumerate(T_rel):
         V_parent_in_child = V[-1].apply_transform(T)
         V_i = V_parent_in_child + S_com[i] * qdot[i]
